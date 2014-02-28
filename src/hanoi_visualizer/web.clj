@@ -9,7 +9,8 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.basic-authentication :as basic]
             [cemerick.drawbridge :as drawbridge]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [hanoi-visualizer.hanoi :as hanoi]))
 
 (defn- authenticated? [user pass]
   ;; TODO: heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]
@@ -26,7 +27,7 @@
   (GET "/" []
        {:status 200
         :headers {"Content-Type" "text/plain"}
-        :body (pr-str ["A big Hello" :from 'Heroku])})
+        :body (pr-str ["A big Hello" :from 'Heroku "and clojure version " (clojure-version)])})
   (ANY "*" []
        (route/not-found (slurp (io/resource "404.html")))))
 
