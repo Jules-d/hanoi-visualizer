@@ -6,11 +6,14 @@
             [ring.middleware.stacktrace :as trace]
             [ring.middleware.session :as session]
             [ring.middleware.session.cookie :as cookie]
+            [ring.middleware.params :as params]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.basic-authentication :as basic]
             [cemerick.drawbridge :as drawbridge]
             [environ.core :refer [env]]
-            [hanoi-visualizer.hanoi :as hanoi]))
+            [hanoi-visualizer.hanoi :as hanoi]
+            [hiccup.core :as hc]
+            [hiccup.page :as hp]))
 
 (defn- authenticated? [user pass]
   ;; TODO: heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]

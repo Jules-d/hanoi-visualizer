@@ -1,6 +1,7 @@
 (ns hanoi-visualizer.hanoi
   (:require [clojure.string :as string])
-  [:use clojure.test])
+  [:use clojure.test]
+  (:use [clojure.pprint :only [pprint]]))
 
 ; (vec ("a","b"))
 ; java.lang.ClassCastException: java.lang.String cannot be cast to clojure.lang.IFn
@@ -25,6 +26,11 @@
   (vec (map (partial apply (fn [from to]{:from from :to to}))
           (seq haskel-input))))
 
+(defn read-fn [input]
+  (vec (map (partial apply (fn [from to]{:from from :to to}))
+          (seq input))))
+
+(read-hanoi [("a","c"), ("a","b"), ("c","b")])
 (def answer (read-hanoi [("a","c"), ("a","b"), ("c","b")]))
 (def pegs (set (flatten (map vals answer))))
 (def a-move (first answer))
@@ -63,17 +69,80 @@ a-move
   (if (<= n 1) "()"
                     (apply str (concat "(" (repeat (* 2 (dec n)) space) ")"))))
 
-;(is (== (ring->string 1) "()") ; Curious.  This failes to compile under heroku:
-;       ERROR in clojure.lang.PersistentList$EmptyList@1 (Numbers.java:206)
-;       expected: (== (ring->string 1) "()")
-;         actual: java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Number
+(is (= (ring->string 1) "()"))
+
+(map #(some #{%} [1 3 5]) (range 1 6))
+
+(some #{1} [1 3 5])
+(some #{4} [1 3 5])
+
+
+(string/replace "(_(_(" #"\(" ")")
+
+(let [s "abc"]
+  (string/join "" (concat s (reverse s))))
+
+(defn peg->string
+  "Render a peg (a sequence of ring values) as ascii art"
+  [number-of-rings peg]
+  (let [left-string (string/join "" (map #(if (some #{%} peg) "(" space) (range 1 (inc number-of-rings))))
+        right-string (string/reverse (string/replace left-string #"\(" ")" ))]
+     (str left-string right-string)))
+
+
+ (peg->string 5 [1  3  5])
+ (peg->string 5 [1 2 3 4 5])
+
+
+(is (= "((((()))))" (peg->string 5 [1 2 3 4 5])))
+(is (= (str "(" space "(" space "()" space ")" space ")")
+       (peg->string 5 [1  3  5])))
 
 (map ring->string (range 1 5))
 
-(def test-state {"a" '(1) "b" '(2) "c" '(3)})
-(def initial-state {"a" () "b" () "c" ()})
+(val (ffirst answer3))
+(:from (first answer3))
+(= "a" (:from (first answer3)))
 
-; We can't easily figure out how many rings the solution is for, so we'll have to infer it as we go along.
+(defn abs
+  "Simple numerical absolute value"
+  [n]
+  (if (neg? n) (- n) n))
+
+(defn count-peg-moves [answer direction peg]
+  (count (filter
+ #(= peg (direction %)) answer)))
+
+(is (= (count-peg-moves answer :from "a") 2))
+(is (= (count-peg-moves answer :to "a") 0))
+(is (= (count-peg-moves answer3 :from "a") 4))
+(is (= (count-peg-moves answer3 :to "a") 1))
+
+(defn infer-rings
+  "Figure out how many rings the answer is solving for by tracking movements on the first peg (in two passes)"
+  [answer]
+  (let [first-peg (:from (ffirst answer))]
+    (abs (- (count-peg-moves answer :from "a")
+            (count-peg-moves answer :to "a")))))
+
+(is (= (infer-rings answer) 2))
+(is (= (infer-rings answer3) 3))
+
+; TODO: We can build this
+(defn answer->initial-state
+  "Determine an initial state from an answer.
+
+  Lots of Assumptions:
+  Answer is complete
+  Three pegs named \"a\" \"b\" and \"c\""
+  [answer]
+  (let [number-of-rings (infer-rings answer)]
+    ))
+
+(def test-state {"a" '(1) "b" '(2) "c" '(3)})
+(def test-initial-state {"a" '(1 2 3 4 5) "b" () "c" ()})
+; TODO: calculate initial state
+(def initial-state test-initial-state)
 
 (apply concat (vals test-state))
 (apply concat (vals initial-state))
@@ -87,11 +156,10 @@ a-move
         [ring from-peg] (if (empty? from-peg)
                           (let [rings (apply concat (vals pegs))
                                 new-ring (inc (count rings))]
-                            [new-ring []])
+                            [new-ring ()])
                           [(first from-peg) (rest from-peg)])
         to-peg (cons ring to-peg)]
     (assoc pegs from from-peg to to-peg)))
-
 
 (cons 1 ())
 (cons 2 (cons 1 ()))
@@ -106,7 +174,37 @@ a-move
     (process-hanoi-move a-move)
     (process-hanoi-move a-move))
 
-(reduce process-hanoi-move initial-state answer)
+(reductions process-hanoi-move initial-state answer)
 
-(reduce process-hanoi-move initial-state answer3)
+(defn answer->history
+  "Take an answer and generate a lazy sequence of all the intermediate states"
+  [answer]
+  ; TODO: generate initial state
+  (reductions process-hanoi-move initial-state answer))
+
+(answer->history answer3)
+(first (answer->history answer3))
+(map vals (answer->history answer3))
+(first (vals (first (answer->history answer3))))
+(peg->string 5 (first (vals (first (answer->history answer3)))))
+(map (partial peg->string 5)
+     (vals (first (answer->history answer3))))
+
+
+(defn state->string
+  "Returns a list of acsii-art strings for each peg, intended to look like pegs from above"
+  [num-rings state]
+  (map (partial peg->string num-rings)
+           (vals state)))
+(state->string 5 initial-state)
+
+(def peg->string-5 (partial peg->string 5))
+
+(map (partial state->string 5) (answer->history answer3))
+
+; OK.
+; Still important TODO's, but this is the shape of the solution:
+(pprint (map (partial state->string 3) (answer->history answer3)))
+
+
 
