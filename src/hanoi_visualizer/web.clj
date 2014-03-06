@@ -77,7 +77,7 @@
                          "http://www.seas.upenn.edu/~cis194/lectures/01-intro.html"] [:p]
                         "Use the url to pass in your haskell solution as the path or a parameter, e.g.:"]
                        [:div [:a {:href (str url example2)} (str url example2)]]
-                       [:div "or " [:a {:href (str url "?x=" example3)} (str url "?=x" example3)]]
+                       [:div "or " [:a {:href (str url example3)} (str url example3)]]
                        [:div "Each line is one step in your solution, and it's supposed to be ascii art as though you're looking down on the pegs from above."]
 ;                       [:div (pr-str :req req)]
 ;                       [:div (pr-str  hanoi-result ", " (type hanoi-result)(type (first hanoi-result)))]
