@@ -52,7 +52,7 @@
      :headers {"Content-Type" "text/html"}
      :body  (hp/html5 [:head]
                       [:body [:h3 "Hello BFPG!"]
-                       [:div "This is a visualizer for solutions in haskel from the yergey lectures "
+                       [:div "This is a visualizer for solutions in haskel from the Yorgey lectures "
                         (simple-link "http://www.seas.upenn.edu/~cis194/lectures/01-intro.html")
                         [:p]
                         "Use the url to pass in your haskell solution, e.g.:"]

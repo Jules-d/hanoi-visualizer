@@ -82,7 +82,6 @@
 
 (def pegs (set (flatten (map vals example-answer))))
 
-
 ; TODO: We can build this
 (defn answer->initial-state
   "Determine an initial state from an answer.
@@ -128,14 +127,5 @@
   [num-rings state]
   (map (partial peg->string num-rings)
        (vals state)))
-
-(def peg->string-5 (partial peg->string 5))
-
-(map (partial state->string 5) (answer->history answer3))
-
-; OK.
-; Still important TODO's, but this is the shape of the solution:
-(pprint (map (partial state->string 3) (answer->history answer3)))
-
 
 
