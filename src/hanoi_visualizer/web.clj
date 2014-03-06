@@ -91,11 +91,7 @@
   (let [port (Integer. (or port (env :port) 5000))
         ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
         store (cookie/cookie-store {:key (env :session-secret)})]
-        (jetty/run-jetty (-> #'app
-                         ((if (env :production)
-                            wrap-error-page
-                            trace/wrap-stacktrace))
-                         (site {:session {:store store}})))))
+    (jetty/run-jetty app {:port port})))
 
 ;; For interactive development:
 ;; (.stop server)
