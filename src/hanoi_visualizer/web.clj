@@ -51,7 +51,7 @@
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body  (hp/html5 [:head]
-                      [:body [:h1 "HELLO!"]
+                      [:body [:h3 "Hello BFPG!"]
                        [:div "This is a visualizer for solutions in haskel from the yergey lectures "
                         (simple-link "http://www.seas.upenn.edu/~cis194/lectures/01-intro.html")
                         [:p]

@@ -33,7 +33,7 @@
 
 (is (== (init-peg 1)) [1])
 (is (== (init-peg 2)) [1 2])
-(is (== (init-peg 5)) [1 2 3 4 5])
+(is (== (init-peg 5)) [1 2 3 4 5])66
 
 (def space "_")
 
