@@ -79,13 +79,10 @@ a-move
 
 (string/replace "(_(_(" #"\(" ")")
 
-(let [s "abc"]
-  (string/join "" (concat s (reverse s))))
-
 (defn peg->string
   "Render a peg (a sequence of ring values) as ascii art"
   [number-of-rings peg]
-  (let [left-string (string/join "" (map #(if (some #{%} peg) "(" space) (range 1 (inc number-of-rings))))
+  (let [left-string (string/join "" (map #(if (some #{%} peg) "(" space) (reverse (range 1 (inc number-of-rings)))))
         right-string (string/reverse (string/replace left-string #"\(" ")" ))]
      (str left-string right-string)))
 
