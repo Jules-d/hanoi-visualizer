@@ -55,7 +55,7 @@
                                   hanoi-result (read-string hanoi-input)
                                   answer (hanoi/read-fn hanoi-result)
                                   num-rings (hanoi/infer-rings answer)
-                                  strings (map (partial hanoi/state->string 3) (hanoi/answer->history answer))]
+                                  strings (map (partial hanoi/state->string num-rings) (hanoi/answer->history answer))]
                               [:table
                                (for [s strings]
                                  [:tr
