@@ -16,6 +16,7 @@
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-ring "0.8.10"]]
   :hooks [environ.leiningen.hooks]
+  :ring {:handler hanoi-visualizer.web/app}
   :profiles {:production {:env {:production true}}
              :dev {:ring {:handler hanoi-visualizer.web/app
                           :auto-reload? true
