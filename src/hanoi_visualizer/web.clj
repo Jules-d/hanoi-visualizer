@@ -53,11 +53,10 @@
                        [:div [:a {:href (str url example2)} (str url example2)]]
                        [:div "or " [:a {:href (str url "?x=" example3)} (str url "?=x" example3)]]
                        [:div "Each line is one step in your solution, and it's supposed to be ascii art as though you're looking down on the pegs from above."]
-                       ;                         "http://localhost:3000/?x=[(\"a\",\"b\"),(\"a\",\"c\"),(\"b\",\"c\"),(\"a\",\"b\"),(\"c\",\"a\"),(\"c\",\"b\"),(\"a\",\"b\")]"]]
-                                              [:div (pr-str :req req)]
-                       ;                       [:div (pr-str  hanoi-result ", " (type hanoi-result)(type (first hanoi-result)))]
-                       ;                       [:div (pr-str "Rings: " num-rings "," answer)]
-                       ;                       [:div (pr-str strings)]
+;                       [:div (pr-str :req req)]
+;                       [:div (pr-str  hanoi-result ", " (type hanoi-result)(type (first hanoi-result)))]
+;                       [:div (pr-str "Rings: " num-rings "," answer)]
+;                       [:div (pr-str strings)]
                        solution-div
                        ])}))
 
