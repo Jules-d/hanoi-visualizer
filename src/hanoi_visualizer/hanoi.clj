@@ -63,8 +63,8 @@
   (count (filter
           #(= peg (direction %)) answer)))
 
-(is (= (count-peg-moves answer :from "a") 2))
-(is (= (count-peg-moves answer :to "a") 0))
+(is (= (count-peg-moves example-answer :from "a") 2))
+(is (= (count-peg-moves example-answer :to "a") 0))
 (is (= (count-peg-moves answer3 :from "a") 4))
 (is (= (count-peg-moves answer3 :to "a") 1))
 
@@ -75,10 +75,11 @@
     (abs (- (count-peg-moves answer :from "a")
             (count-peg-moves answer :to "a")))))
 
-(is (= (infer-rings answer) 2))
+(is (= (infer-rings example-answer) 2))
 (is (= (infer-rings answer3) 3))
 
 (def example-answer (read-hanoi [("a","c"), ("a","b"), ("c","b")]))
+(def answer3 (read-hanoi [("a","b"),("a","c"),("b","c"),("a","b"),("c","a"),("c","b"),("a","b")]))
 (def pegs (set (flatten (map vals example-answer))))
 
 
