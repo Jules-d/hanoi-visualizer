@@ -116,34 +116,12 @@
         to-peg (cons ring to-peg)]
     (assoc pegs from from-peg to to-peg)))
 
-(cons 1 ())
-(cons 2 (cons 1 ()))
-(pop '(1 2))
-(peek '(1 2))
-(cons 1 '(2 3))
-
-a-move
-(process-hanoi-move test-initial-state a-move)
-(process-hanoi-move test-state a-move)
-(-> test-initial-state
-    (process-hanoi-move a-move)
-    (process-hanoi-move a-move))
-
 (defn answer->history
   "Take an answer and generate a lazy sequence of all the intermediate states"
   [answer]
   (let [initial-state (answer->initial-state answer)]
     ; TODO: generate initial state
     (reductions process-hanoi-move initial-state answer)))
-
-(answer->history answer3)
-(first (answer->history answer3))
-(map vals (answer->history answer3))
-(first (vals (first (answer->history answer3))))
-(peg->string 5 (first (vals (first (answer->history answer3)))))
-(map (partial peg->string 5)
-     (vals (first (answer->history answer3))))
-
 
 (defn state->string
   "Returns a list of acsii-art strings for each peg, intended to look like pegs from above"
