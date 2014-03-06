@@ -11,95 +11,48 @@
 ; before we can treat it as clojure forms, so we need a macro to
 ; handle it without evaluating it.
 
-(vec '("a","b"))
-
-(defmacro tuple->vector [tuple]
-  (vec tuple))
-
-
-(def a-tuple (macroexpand (tuple->vector ("a","b"))))
-
-(vec (map (partial apply (fn [from to]{:from from :to to}))
-          (seq '[("a","c"), ("a","b"), ("c","b")])))
-
-(defmacro read-hanoi [haskel-input]
+(defmacro read-hanoi
+  "You need a macro evaluate haskel inside lighttable, otherwise it tries to call a string as a function"
+  [haskel-input]
   (vec (map (partial apply (fn [from to]{:from from :to to}))
-          (seq haskel-input))))
+            (seq haskel-input))))
 
 (defn read-fn [input]
   (vec (map (partial apply (fn [from to]{:from from :to to}))
-          (seq input))))
+            (seq input))))
 
-(read-hanoi [("a","c"), ("a","b"), ("c","b")])
-(def answer (read-hanoi [("a","c"), ("a","b"), ("c","b")]))
-(def pegs (set (flatten (map vals answer))))
-(def a-move (first answer))
-
-;*Main> hanoi 3 "a" "b" "c"
-(def answer3 (read-hanoi [("a","b"),("a","c"),("b","c"),("a","b"),("c","a"),("c","b"),("a","b")]))
-
-a-tuple
-pegs
-answer
-a-move
-
-(quote :a)
 ; This is what the output we want to visualize looks like:
 ; hanoi 2 "a" "b" "c"
 ; == [("a","c"), ("a","b"), ("c","b")]
 
-
-; (map str [1 2 3 4])
-
-; ultimate, I want a list of visualizable data: a list of an array of pegs, where a peg is a list of rings.
-
+; ultimately, I want a list of visualizable data: a list of an array of pegs, where a peg is a list of rings.
 ; so a peg is a list of numbers, where 1 is the smallest ring, 2 is the second smallest etc.
 ; the rules of the game should enforce that lists are sorted at all times.
 
-(def space "_")
-
-(def example-peg3 [1,2,3])
 (defn init-peg [n] (range 1 (inc n)))
 
 (is (== (init-peg 1)) [1])
 (is (== (init-peg 2)) [1 2])
 (is (== (init-peg 5)) [1 2 3 4 5])
 
+(def space "_")
+
 (defn ring->string [n]
   (if (<= n 1) "()"
-                    (apply str (concat "(" (repeat (* 2 (dec n)) space) ")"))))
+    (apply str (concat "(" (repeat (* 2 (dec n)) space) ")"))))
 
 (is (= (ring->string 1) "()"))
-
-(map #(some #{%} [1 3 5]) (range 1 6))
-
-(some #{1} [1 3 5])
-(some #{4} [1 3 5])
-
-
-(string/replace "(_(_(" #"\(" ")")
 
 (defn peg->string
   "Render a peg (a sequence of ring values) as ascii art"
   [number-of-rings peg]
   (let [left-string (string/join "" (map #(if (some #{%} peg) "(" space) (reverse (range 1 (inc number-of-rings)))))
         right-string (string/reverse (string/replace left-string #"\(" ")" ))]
-     (str left-string right-string)))
-
-
- (peg->string 5 [1  3  5])
- (peg->string 5 [1 2 3 4 5])
-
+    (str left-string right-string)))
 
 (is (= "((((()))))" (peg->string 5 [1 2 3 4 5])))
 (is (= (str "(" space "(" space "()" space ")" space ")")
        (peg->string 5 [1  3  5])))
-
-(map ring->string (range 1 5))
-
-(val (ffirst answer3))
-(:from (first answer3))
-(= "a" (:from (first answer3)))
 
 (defn abs
   "Simple numerical absolute value"
@@ -108,7 +61,7 @@ a-move
 
 (defn count-peg-moves [answer direction peg]
   (count (filter
- #(= peg (direction %)) answer)))
+          #(= peg (direction %)) answer)))
 
 (is (= (count-peg-moves answer :from "a") 2))
 (is (= (count-peg-moves answer :to "a") 0))
@@ -125,6 +78,10 @@ a-move
 (is (= (infer-rings answer) 2))
 (is (= (infer-rings answer3) 3))
 
+(def example-answer (read-hanoi [("a","c"), ("a","b"), ("c","b")]))
+(def pegs (set (flatten (map vals example-answer))))
+
+
 ; TODO: We can build this
 (defn answer->initial-state
   "Determine an initial state from an answer.
@@ -133,16 +90,16 @@ a-move
   Answer is complete
   Three pegs named \"a\" \"b\" and \"c\""
   [answer]
-  (let [number-of-rings (infer-rings answer)]
-    ))
+  (let [number-of-rings (infer-rings answer)
+        peg-names (set (flatten (map vals answer)))
+        num-pegs (count peg-names)
+        pegs (reduce into (for [p peg-names] {p ()}))]
+    (assoc pegs (ffirst pegs) (range 1 (inc num-pegs)))))
 
 (def test-state {"a" '(1) "b" '(2) "c" '(3)})
 (def test-initial-state {"a" '(1 2 3 4 5) "b" () "c" ()})
 ; TODO: calculate initial state
-(def initial-state test-initial-state)
 
-(apply concat (vals test-state))
-(apply concat (vals initial-state))
 ; take a map of pegs to a (potentially incomplete) list-of-rings, and a move,
 ; and retun the new state with a ring moved from the :from peg to the :to peg
 (defn process-hanoi-move [pegs move]
@@ -165,19 +122,18 @@ a-move
 (cons 1 '(2 3))
 
 a-move
-(process-hanoi-move initial-state a-move)
+(process-hanoi-move test-initial-state a-move)
 (process-hanoi-move test-state a-move)
-(-> initial-state
+(-> test-initial-state
     (process-hanoi-move a-move)
     (process-hanoi-move a-move))
-
-(reductions process-hanoi-move initial-state answer)
 
 (defn answer->history
   "Take an answer and generate a lazy sequence of all the intermediate states"
   [answer]
-  ; TODO: generate initial state
-  (reductions process-hanoi-move initial-state answer))
+  (let [initial-state (answer->initial-state answer)]
+    ; TODO: generate initial state
+    (reductions process-hanoi-move initial-state answer)))
 
 (answer->history answer3)
 (first (answer->history answer3))
@@ -192,8 +148,7 @@ a-move
   "Returns a list of acsii-art strings for each peg, intended to look like pegs from above"
   [num-rings state]
   (map (partial peg->string num-rings)
-           (vals state)))
-(state->string 5 initial-state)
+       (vals state)))
 
 (def peg->string-5 (partial peg->string 5))
 
