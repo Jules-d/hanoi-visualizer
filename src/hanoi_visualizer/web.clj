@@ -24,6 +24,30 @@
       (session/wrap-session)
       (basic/wrap-basic-authentication authenticated?)))
 
+(def example-req {:ssl-client-cert nil,
+                  :remote-addr "0:0:0:0:0:0:0:1",
+                  :scheme :http,
+                  :query-params {"x" "[(\"a\",\"b\"),(\"a\",\"c\"),(\"b\",\"c\"),(\"a\",\"b\"),(\"c\",\"a\"),(\"c\",\"b\"),(\"a\",\"b\")]"},
+                  :form-params {},
+                  :request-method :get,
+                  :query-string "x=[(%22a%22,%22b%22),(%22a%22,%22c%22),(%22b%22,%22c%22),(%22a%22,%22b%22),(%22c%22,%22a%22),(%22c%22,%22b%22),(%22a%22,%22b%22)]",
+                  :route-params {:* ""},
+                  :content-type nil,
+                  :uri "/",
+                  :server-name "localhost",
+                  :params {"x" "[(\"a\",\"b\"),(\"a\",\"c\"),(\"b\",\"c\"),(\"a\",\"b\"),(\"c\",\"a\"),(\"c\",\"b\"),(\"a\",\"b\")]", :* ""},
+                  :headers {"accept-encoding"
+                            "gzip,deflate,sdch",
+                            "connection" "keep-alive",
+                            "user-agent" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36",
+                            "accept-language" "en-US,en;q=0.8", "accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                            "host" "localhost:5000",
+                            "cookie" "wp-settings-time-1=1375675120"},
+                  :content-length nil,
+                  :server-port 5000,
+                  :character-encoding nil,
+                  :body 'x })
+
 (defn my-handler [req]
   (let [params (:params req)
         solution-div (try (if params
@@ -41,7 +65,9 @@
                        (catch Exception e [:div "Exception: " (.getMessage e)]))
         example2  "[(\"a\",\"c\"), (\"a\",\"b\"), (\"c\",\"b\")]"
         example3 "[(\"a\",\"b\"),(\"a\",\"c\"),(\"b\",\"c\"),(\"a\",\"b\"),(\"c\",\"a\"),(\"c\",\"b\"),(\"a\",\"b\")]"
-        url "http://localhost:3000/"]
+        port (:server-port req)
+        server (:server-name req)
+        url (str server (if port ":" port) port)]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body  (hp/html5 [:head]
