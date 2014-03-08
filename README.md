@@ -9,6 +9,8 @@ or http://localhost:3000/[("a","b"),("a","c"),("b","c"),("a","b"),("c","a"),("c"
 It should also work with more pegs
 Each line is one step in your solution, and it's supposed to be ascii art as though you're looking down on the pegs from above.
 
+It's hosted on heroku at http://hanoi-visualizer.herokuapp.com/ (it's a free account, so give it a minute to wake up)
+
 ## License
 
 Copyright © 2014 Julian de Bhal

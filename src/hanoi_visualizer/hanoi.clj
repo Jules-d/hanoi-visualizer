@@ -3,13 +3,12 @@
   [:use clojure.test]
   (:use [clojure.pprint :only [pprint]]))
 
+; We need to not have strings in the first position of lists
+; before we can treat it as clojure forms, so we need a macro to
+; handle it without evaluating it.  Otherwise you get an error like:
 ; (vec ("a","b"))
 ; java.lang.ClassCastException: java.lang.String cannot be cast to clojure.lang.IFn
 ; hanoi-visualizer\src\hanoi_visualizer\hanoi.clj:5 hanoi-visualizer.util/eval6989
-
-; We need to not have strings in the first position of lists
-; before we can treat it as clojure forms, so we need a macro to
-; handle it without evaluating it.
 
 (defmacro read-hanoi
   "You need a macro evaluate haskel inside lighttable, otherwise it tries to call a string as a function"
@@ -29,19 +28,13 @@
 ; so a peg is a list of numbers, where 1 is the smallest ring, 2 is the second smallest etc.
 ; the rules of the game should enforce that lists are sorted at all times.
 
-(defn init-peg [n] (range 1 (inc n)))
-
-(is (== (init-peg 1)) [1])
-(is (== (init-peg 2)) [1 2])
-(is (== (init-peg 5)) [1 2 3 4 5])66
-
 (def space "_")
+
+(defn init-peg [n] (range 1 (inc n)))
 
 (defn ring->string [n]
   (if (<= n 1) "()"
     (apply str (concat "(" (repeat (* 2 (dec n)) space) ")"))))
-
-(is (= (ring->string 1) "()"))
 
 (defn peg->string
   "Render a peg (a sequence of ring values) as ascii art"
@@ -49,10 +42,6 @@
   (let [left-string (string/join "" (map #(if (some #{%} peg) "(" space) (reverse (range 1 (inc number-of-rings)))))
         right-string (string/reverse (string/replace left-string #"\(" ")" ))]
     (str left-string right-string)))
-
-(is (= "((((()))))" (peg->string 5 [1 2 3 4 5])))
-(is (= (str "(" space "(" space "()" space ")" space ")")
-       (peg->string 5 [1  3  5])))
 
 (defn abs
   "Simple numerical absolute value"
@@ -65,10 +54,6 @@
 
 (def example-answer (read-hanoi [("a","c"), ("a","b"), ("c","b")]))
 (def answer3 (read-hanoi [("a","b"),("a","c"),("b","c"),("a","b"),("c","a"),("c","b"),("a","b")]))
-(is (= (count-peg-moves example-answer :from "a") 2))
-(is (= (count-peg-moves example-answer :to "a") 0))
-(is (= (count-peg-moves answer3 :from "a") 4))
-(is (= (count-peg-moves answer3 :to "a") 1))
 
 (defn infer-rings
   "Figure out how many rings the answer is solving for by tracking movements on the first peg (in two passes)"
@@ -77,18 +62,10 @@
     (abs (- (count-peg-moves answer :from "a")
             (count-peg-moves answer :to "a")))))
 
-(is (= (infer-rings example-answer) 2))
-(is (= (infer-rings answer3) 3))
-
 (def pegs (set (flatten (map vals example-answer))))
 
-; TODO: We can build this
 (defn answer->initial-state
-  "Determine an initial state from an answer.
-
-  Lots of Assumptions:
-  Answer is complete
-  Three pegs named \"a\" \"b\" and \"c\""
+  "Determine an initial state from an answer."
   [answer]
   (let [number-of-rings (infer-rings answer)
         peg-names (set (flatten (map vals answer)))
@@ -96,12 +73,9 @@
         pegs (reduce into (for [p peg-names] {p ()}))]
     (assoc pegs (ffirst pegs) (range 1 (inc num-pegs)))))
 
-(def test-state {"a" '(1) "b" '(2) "c" '(3)})
-(def test-initial-state {"a" '(1 2 3 4 5) "b" () "c" ()})
-; TODO: calculate initial state
-
-; take a map of pegs to a (potentially incomplete) list-of-rings, and a move,
-; and retun the new state with a ring moved from the :from peg to the :to peg
+; take a state and a move and retun the new state with a ring moved from the
+; :from peg to the :to peg
+; Note that new pegs and rings are created if necessary.
 (defn process-hanoi-move [pegs move]
   (let [from (:from move)
         to (:to move)
@@ -119,7 +93,6 @@
   "Take an answer and generate a lazy sequence of all the intermediate states"
   [answer]
   (let [initial-state (answer->initial-state answer)]
-    ; TODO: generate initial state
     (reductions process-hanoi-move initial-state answer)))
 
 (defn state->string
@@ -128,4 +101,25 @@
   (map (partial peg->string num-rings)
        (vals state)))
 
+; Some simple tests
+(def test-state {"a" '(1) "b" '(2) "c" '(3)})
+(def test-initial-state {"a" '(1 2 3 4 5) "b" () "c" ()})
+
+(is (== (init-peg 1)) [1])
+(is (== (init-peg 2)) [1 2])
+(is (== (init-peg 5)) [1 2 3 4 5])66
+
+(is (= (ring->string 1) "()"))
+
+(is (= "((((()))))" (peg->string 5 [1 2 3 4 5])))
+(is (= (str "(" space "(" space "()" space ")" space ")")
+       (peg->string 5 [1  3  5])))
+
+(is (= (count-peg-moves example-answer :from "a") 2))
+(is (= (count-peg-moves example-answer :to "a") 0))
+(is (= (count-peg-moves answer3 :from "a") 4))
+(is (= (count-peg-moves answer3 :to "a") 1))
+
+(is (= (infer-rings example-answer) 2))
+(is (= (infer-rings answer3) 3))
 

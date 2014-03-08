@@ -55,6 +55,7 @@
                        [:div "This is a visualizer for solutions in haskel from the Yorgey lectures "
                         (simple-link "http://www.seas.upenn.edu/~cis194/lectures/01-intro.html")
                         [:p]
+                        "Source is available at " (simple-link "https://github.com/Jules-d/hanoi-visualizer")
                         "Use the url to pass in your haskell solution, e.g.:"]
                        [:div (simple-link (str url example2))]
                        [:div "or " (simple-link (str url example3))]
